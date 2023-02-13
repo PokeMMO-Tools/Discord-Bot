@@ -41,8 +41,6 @@ if (interaction.isAutocomplete){
                 i = entry.length
             }
         }
-        console.log(choices)
-        console.log(itemTyped)
         if(itemTyped.length >2 && !isNaN(itemTyped)){ //WEIRD WORK AROUND.... autocomplete will crash if i dont stop it here.
             return
         }
@@ -72,7 +70,13 @@ client.on('interactionCreate', async (interaction) =>{
     if (interaction.commandName === 'price'){
 
         const itemTyped = interaction.options.get('item-name').value;
+        let itemTypedName = 'item-name'
+        const response = await fetch(`https://pokemmoprices.com/api/v2/items/table/${itemTyped}`);
 
+        const myJson = await response.json(); //extract JSON from the http response
+        let entry = myJson['data']
+
+        itemTypedName = entry[0].i.en //english name
 
         async function fetching(){
 
@@ -135,6 +139,11 @@ client.on('interactionCreate', async (interaction) =>{
                         ]
                         },
                         options: {
+                            title:{
+                                display: true,
+                                text: itemTypedName,
+                                fontColor: '#fff'
+                            },
                             legend: {
                                 display: false
                             },
@@ -172,7 +181,7 @@ client.on('interactionCreate', async (interaction) =>{
                 chart.backgroundColor = '#1b1b1b'
                     
                 const url = await chart.getShortUrl()
-                const chartEmbed = new EmbedBuilder().setTitle('Item').setDescription(`https://pokemmoprices.com/item?id=${itemTyped}`).setImage(url)
+                const chartEmbed = new EmbedBuilder().setTitle(itemTypedName+' Chart').setDescription(`View full chart: https://pokemmoprices.com/item?id=${itemTyped}`).setImage(url)
                 await interaction.editReply({ content: '', embeds: [chartEmbed] });
             }
 
