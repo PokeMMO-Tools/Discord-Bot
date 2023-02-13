@@ -17,7 +17,53 @@ client.on('ready', (c) =>{
     console.log('PokeMMO Tools bot is ready.')
 })
 
-client.on('interactionCreate', (interaction) =>{
+
+client.on('interactionCreate', async (interaction) =>{
+if (interaction.isAutocomplete){
+    const itemTyped = interaction.options.get('item-name').value;
+
+// AUTO COMPLETE
+    if (itemTyped.length > 2){ 
+        const response = await fetch(`https://proxy.pokemmoprices.com/items/search/${itemTyped}`);
+        const myJson = await response.json(); //extract JSON from the http response
+        let entry = myJson['data']
+        let choices = [];
+
+        for (let i = 0; i < entry.length; i++ ){
+            let entries = entry[i]
+            let searchResult = {
+                name: entries.name,
+                value: ''+entries.id
+            }
+            choices.push(searchResult)
+            if (i == 24){
+                console.log ('option limit reached')
+                i = entry.length
+            }
+        }
+        console.log(choices)
+        console.log(itemTyped)
+        if(itemTyped.length >2 && !isNaN(itemTyped)){ //WEIRD WORK AROUND.... autocomplete will crash if i dont stop it here.
+            return
+        }
+        if (choices.length == 0){
+            let placeholder = {
+                name: 'No results. Delete and try again',
+                value: '1000000'
+            }
+            choices.push(placeholder)
+        }
+
+        await interaction.respond(
+            choices
+        ).then(() => console.log('successfully responded autocomplete'))
+        .catch(console.error)
+
+}
+}
+})
+
+client.on('interactionCreate', async (interaction) =>{
 
     if (!interaction.isChatInputCommand()){
         return
@@ -25,12 +71,12 @@ client.on('interactionCreate', (interaction) =>{
 
     if (interaction.commandName === 'price'){
 
-
         const itemTyped = interaction.options.get('item-name').value;
+
 
         async function fetching(){
 
-            await interaction.reply('Fetching graph...');
+            await interaction.deferReply();
 
             async function doThis(){
                     const response = await fetch(`https://pokemmoprices.com/api/v2/items/graph/min/${itemTyped}`);

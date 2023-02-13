@@ -11,6 +11,7 @@ const commands = [
                 description: 'Item name',
                 type: ApplicationCommandOptionType.String,
                 required: true,
+                autocomplete: true,
             }
         ]
     },
