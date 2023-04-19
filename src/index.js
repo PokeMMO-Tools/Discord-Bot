@@ -17,19 +17,38 @@ client.on('ready', (c) =>{
     console.log('PokeMMO Tools bot is ready.')
 })
 
+let itemMap = []
+
+ async function loadItems(){
+    const result = await fetch( //mapping each item in the dropdown to their name and id according to api
+    `https://pokemmoprices.com/api/v2/items/all?noDescription=true#`
+  );
+  const myJson = await result.json()
+
+  const data = myJson.data;
+  const list = data.map((item) => {
+    return { 
+      name: item.n.en ,
+      value:item.i+''
+    }
+  })
+  itemMap = list //assigning list of items/id to global variable
+}
+loadItems();
+
 
 client.on('interactionCreate', async (interaction) =>{
 if (interaction.isAutocomplete){
     const itemTyped = interaction.options.get('item-name').value;
-
+    let itemMap2 = itemMap
+    let choices = [];
 // AUTO COMPLETE
-    if (itemTyped.length > 2){ 
-        const response = await fetch(`https://proxy.pokemmoprices.com/items/search/${itemTyped}`);
-        const myJson = await response.json(); //extract JSON from the http response
-        let entry = myJson['data']
-        let choices = [];
+    if (itemTyped.length > 0){ 
+     //   const response = await fetch(`https://proxy.pokemmoprices.com/items/search/${itemTyped}`);
+     //   const myJson = await response.json(); //extract JSON from the http response
+     //   let entry = myJson['data']
 
-        for (let i = 0; i < entry.length; i++ ){
+   /*    for (let i = 0; i < entry.length; i++ ){
             let entries = entry[i]
             let searchResult = {
                 name: entries.name,
@@ -39,11 +58,18 @@ if (interaction.isAutocomplete){
             if (i == 24){
                 console.log ('option limit reached')
                 i = entry.length
+            }  */
+            let searchResult = itemMap2.filter(item => item.name.toLowerCase().includes(itemTyped+''))
+            for (let i = 0; i < searchResult.length; i++) {
+                choices.push(searchResult[i])
+                if(i>23){  //can only handle 25 responses or it will crash
+                    break
+                }
             }
+           console.log(itemMap2.filter(item => item.name.toLowerCase().includes(itemTyped+'')))
+
         }
-        if(itemTyped.length >2 && !isNaN(itemTyped)){ //WEIRD WORK AROUND.... autocomplete will crash if i dont stop it here.
-            return
-        }
+
         if (choices.length == 0){
             let placeholder = {
                 name: 'No results. Delete and try again',
@@ -59,7 +85,7 @@ if (interaction.isAutocomplete){
 
 }
 }
-})
+)
 
 client.on('interactionCreate', async (interaction) =>{
 
@@ -71,18 +97,23 @@ client.on('interactionCreate', async (interaction) =>{
 
         const itemTyped = interaction.options.get('item-name').value;
         let itemTypedName = 'item-name'
-        const response = await fetch(`https://pokemmoprices.com/api/v2/items/table/${itemTyped}`);
+        const response = await fetch(`https://pokemmoprices.com/api/v2/items/${itemTyped}`);
+       
 
-        const myJson = await response.json(); //extract JSON from the http response
+       const myJson = await response.json(); //extract JSON from the http response
+       
         let entry = myJson['data']
 
-        itemTypedName = entry[0].i.en //english name
+        itemTypedName = entry.n.en //english name
+
+        console.log(itemTyped) //id
+        console.log(itemTypedName) //english name
 
         async function fetching(){
 
             await interaction.deferReply();
 
-            async function doThis(){
+            async function graphItem(){
                     const response = await fetch(`https://pokemmoprices.com/api/v2/items/graph/min/${itemTyped}`);
                     const myJson = await response.json(); //extract JSON from the http response
                     // do something with myJson
@@ -92,6 +123,7 @@ client.on('interactionCreate', async (interaction) =>{
                         //entries[i].y = entries[i].y.toLocaleString('en-US')
                     }
 
+                     //Smoothing our the graph points
                     const smoothOffset = 2
                     const smoothed = smooth(
                     entries,
@@ -102,8 +134,8 @@ client.on('interactionCreate', async (interaction) =>{
                     },
                     )
 
-
-                    const average = (datapoints) => {
+                    //Smoothing our the graph points
+                    const average = (datapoints) => {  
                         const parts = datapoints.reduce((acc, value, index) => {
                             if (index % 10 === 0) {
                                 acc.push([]);
@@ -120,7 +152,7 @@ client.on('interactionCreate', async (interaction) =>{
                     }
 
                     
-
+                    //creating new quickchart (using chartjs)
                     const chart = new QuickChart();
 
 
@@ -155,7 +187,7 @@ client.on('interactionCreate', async (interaction) =>{
                                     },
                                     type: 'time',
                                     time: {
-                                        unit: 'day',
+                                        unit: 'month',
                                     },
                                 }],
                                 yAxes: [{
@@ -179,16 +211,15 @@ client.on('interactionCreate', async (interaction) =>{
                     .setHeight(400);
 
                 chart.backgroundColor = '#1b1b1b'
-                    
-                const url = await chart.getShortUrl()
+                
+                //embed reply
+                const url = await chart.getShortUrl() //url too long, have to get short one
                 const chartEmbed = new EmbedBuilder().setTitle(itemTypedName+' Chart').setDescription(`View full chart: https://pokemmoprices.com/item?id=${itemTyped}`).setImage(url)
                 await interaction.editReply({ content: '', embeds: [chartEmbed] });
             }
 
-        await doThis()
-
-    }
-
+        await graphItem()
+        }
     fetching()
 
 }
