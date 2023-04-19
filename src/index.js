@@ -3,6 +3,7 @@ require('dotenv').config();
 const { Client, IntentsBitField, AttachmentBuilder, EmbedBuilder, Embed } = require('discord.js');
 const QuickChart = require('quickchart-js');
 const { getGradientFillHelper } = require('quickchart-js');
+const fetch = require('node-fetch')
 
 const client = new Client({
     intents: [
