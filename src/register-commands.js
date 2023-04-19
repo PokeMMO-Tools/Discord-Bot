@@ -1,7 +1,7 @@
 require('dotenv').config();
-const { REST, Routes, ApplicationCommandOptionType, Application } = require('discord.js');
+const { REST, Routes, ApplicationCommandOptionType, Application, SlashCommandBuilder, AutocompleteInteraction } = require('discord.js');
 
-const commands = [
+ const commands = [
     {
         name: 'price',
         description: 'Displays price graph of the item specified.',
@@ -12,10 +12,33 @@ const commands = [
                 type: ApplicationCommandOptionType.String,
                 required: true,
                 autocomplete: true,
-            }
-        ]
+            },
+        ],
     },
 ];
+
+
+
+/*
+    module.exports = { 
+        data: 
+        new SlashCommandBuilder()
+        .setName('price')
+        .setDescription('Displays price graph of the item specified.')
+        .addStringOption(option => 
+            option.setName('item-name')
+                .setDescription('Item name')
+                .setRequired(true)
+                .setAutocomplete(true))
+           //     .setChoices(itemMap)
+                
+        }
+    
+                
+    const commands = []
+    console.log(module.exports.data.toJSON())
+
+ */
 
 const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
