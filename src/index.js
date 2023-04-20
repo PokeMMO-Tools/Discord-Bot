@@ -75,8 +75,7 @@ client.on("interactionCreate", async (interaction) => {
       let searchResult = itemMap2.filter((item) =>
         item.name.toLowerCase().includes(itemTyped + "")
       );
-      if (searchResult.length < 1) {
-      } else {
+      
         for (let i = 0; i < searchResult.length; i++) {
           choices.push(searchResult[i]);
           if (i > 23) {
@@ -84,7 +83,7 @@ client.on("interactionCreate", async (interaction) => {
             break;
           }
         }
-      }
+      
 
       if (choices.length == 0) {
         let placeholder = {
@@ -94,18 +93,14 @@ client.on("interactionCreate", async (interaction) => {
         choices.push(placeholder);
       }
 
-      if (itemTyped.length > 2 && !isNaN(itemTyped)) {
-        //WEIRD WORK AROUND.... autocomplete and bot will crash if i dont stop it here. idk why tbh
 
-        return;
-      }
-      if (choices.length > 1) { //used to be !==
+      if (choices.length >= 1) { //used to be !==
         await interaction
           .respond(choices)
           .then(() => console.log("successfully responded autocomplete"))
           .catch(console.error);
       } else {
-        console.log("typing too fast!");
+        console.log('typing too fast')
       }
       //   if (!choices[0]) {
       //     //attempt to fix crashes
@@ -127,7 +122,8 @@ client.on("interactionCreate", async (interaction) => {
   //  }
 
   if (interaction.commandName === "price") {
-    const itemTyped = interaction.options.get("item-name").value; //id from previous choice
+    
+    const itemTyped = interaction.options.get("item-name").value; //id from previous choice. if invalid it will return the text entry.
     let itemTypedName = "item-name";
     const response = await fetch(
       `https://pokemmoprices.com/api/v2/items/${itemTyped}`
@@ -265,13 +261,15 @@ client.on("interactionCreate", async (interaction) => {
             )
             .setImage(url);
           await interaction.editReply({ content: "", embeds: [chartEmbed] });
+          
         }
 
         await graphItem();
       }
       fetching();
     }
-  }
+  } 
 });
+
 
 client.login(process.env.TOKEN);
