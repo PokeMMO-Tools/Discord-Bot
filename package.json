@@ -3,7 +3,7 @@
     "array-smooth": "^1.0.0",
     "discord.js": "^14.9.0",
     "dotenv": "^16.0.3",
-    "node-fetch": "^3.3.1",
+    "node-fetch": "^2.6.9",
     "pm2": "^5.3.0",
     "quickchart-js": "^3.1.2"
   }
