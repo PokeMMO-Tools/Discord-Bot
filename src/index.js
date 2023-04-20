@@ -55,7 +55,7 @@ client.on("interactionCreate", async (interaction) => {
     let itemMap2 = itemMap;
     let choices = [];
     // AUTO COMPLETE
-    if (itemTyped.length > 2) {
+    if (itemTyped.length > 1) {
       //   const response = await fetch(`https://proxy.pokemmoprices.com/items/search/${itemTyped}`);
       //   const myJson = await response.json(); //extract JSON from the http response
       //   let entry = myJson['data']
