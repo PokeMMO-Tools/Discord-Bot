@@ -55,7 +55,7 @@ client.on("interactionCreate", async (interaction) => {
     let itemMap2 = itemMap;
     let choices = [];
     // AUTO COMPLETE
-    if (itemTyped.length > 0) {
+    if (itemTyped.length > 2) {
       //   const response = await fetch(`https://proxy.pokemmoprices.com/items/search/${itemTyped}`);
       //   const myJson = await response.json(); //extract JSON from the http response
       //   let entry = myJson['data']
@@ -75,7 +75,8 @@ client.on("interactionCreate", async (interaction) => {
       let searchResult = itemMap2.filter((item) =>
         item.name.toLowerCase().includes(itemTyped + "")
       );
-      
+      if (searchResult.length < 1) {
+      } else {
         for (let i = 0; i < searchResult.length; i++) {
           choices.push(searchResult[i]);
           if (i > 23) {
@@ -83,24 +84,29 @@ client.on("interactionCreate", async (interaction) => {
             break;
           }
         }
-      
+      }
 
-      if (choices.length == 0) {
-        let placeholder = {
+
+
+      if (itemTyped.length > 2 && !isNaN(itemTyped)) {
+        //WEIRD WORK AROUND.... autocomplete and bot will crash if i dont stop it here. idk why tbh
+
+        return;
+      }
+      if (choices.length > 0) {
+  /* 
+     let placeholder = {
           name: "No results. Delete and try again",
           value: "1000000",
         };
         choices.push(placeholder);
-      }
-
-
-      if (choices.length >= 1) { //used to be !==
+  */
         await interaction
           .respond(choices)
           .then(() => console.log("successfully responded autocomplete"))
           .catch(console.error);
       } else {
-        console.log('typing too fast')
+        console.log("typing too fast!");
       }
       //   if (!choices[0]) {
       //     //attempt to fix crashes
@@ -122,8 +128,7 @@ client.on("interactionCreate", async (interaction) => {
   //  }
 
   if (interaction.commandName === "price") {
-    
-    const itemTyped = interaction.options.get("item-name").value; //id from previous choice. if invalid it will return the text entry.
+    const itemTyped = interaction.options.get("item-name").value; //id from previous choice
     let itemTypedName = "item-name";
     const response = await fetch(
       `https://pokemmoprices.com/api/v2/items/${itemTyped}`
@@ -261,15 +266,13 @@ client.on("interactionCreate", async (interaction) => {
             )
             .setImage(url);
           await interaction.editReply({ content: "", embeds: [chartEmbed] });
-          
         }
 
         await graphItem();
       }
       fetching();
     }
-  } 
+  }
 });
-
 
 client.login(process.env.TOKEN);
