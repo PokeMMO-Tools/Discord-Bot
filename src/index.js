@@ -131,11 +131,27 @@ client.on("interactionCreate", async (interaction) => {
     const itemTyped = interaction.options.get("item-name").value; //id from previous choice
     let itemTypedName = "item-name";
     let itemTypedName2 = "item-name";
-    const response = await fetch(
-      `https://pokemmoprices.com/api/v2/items/${itemTyped}`
-    );
+    let myJson;
+    let myJson1;
+    let myJson2;
 
-    const myJson = await response.json(); //extract JSON from the http response
+    const fetchData = async () => {
+      try {
+        const responsesJSON = await Promise.all([
+            fetch(  `https://pokemmoprices.com/api/v2/items/${itemTyped}`),
+            fetch( `https://pokemmoprices.com/api/v2/items/graph/min/${itemTyped}`),
+            fetch(`https://pokemmoprices.com/api/v2/items/graph/quantity/${itemTyped}`)
+        ]);
+        const [response, response1, response2] = await Promise.all(responsesJSON.map(r => r.json()));
+        myJson = response //extract JSON from the http response
+        myJson1 =  response1 //extract JSON from the http response
+        myJson2 = response2
+      } catch (err) {
+        throw err;
+      }
+    };
+    
+   await fetchData();
 
     let entry = myJson["data"];
     if (entry != null) {
@@ -159,12 +175,14 @@ client.on("interactionCreate", async (interaction) => {
         await interaction.deferReply();
 
         async function graphItem() {
-          const response = await fetch(
-            `https://pokemmoprices.com/api/v2/items/graph/min/${itemTyped}`
-          );
-          const myJson = await response.json(); //extract JSON from the http response
+          
+         
+
           // do something with myJson
-          let entries = myJson["data"];
+          let entries = myJson1["data"];
+          let entries2 = myJson2["data"]
+          let currentPrice = entries[entries.length-1].y.toLocaleString('en-US')
+          let currentQuantity = entries2[entries2.length-1].y.toLocaleString('en-US')
           for (let i = 0; i < entries.length; i++) {
             entries[i].x *= 1000;
             //entries[i].y = entries[i].y.toLocaleString('en-US')
@@ -273,10 +291,23 @@ client.on("interactionCreate", async (interaction) => {
           const url = await chart.getShortUrl(); //url too long, have to get short one
           const chartEmbed = new EmbedBuilder()
             .setTitle(itemTypedName + " Chart")
+            .setURL(url)
             .setDescription(
               `View full chart: https://pokemmohub.com/items/${itemTypedName2}`
             )
-            .setImage(url);
+            .setImage(url)
+            .addFields(
+              {
+                name: 'Price',
+                value: `${currentPrice}`,
+                inline: true
+              },
+              {
+                name: 'Quantity',
+                value: `${currentQuantity}`,
+                inline: true
+              },
+            );
           await interaction.editReply({ content: "", embeds: [chartEmbed] });
         }
 
