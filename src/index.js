@@ -130,6 +130,7 @@ client.on("interactionCreate", async (interaction) => {
   if (interaction.commandName === "price") {
     const itemTyped = interaction.options.get("item-name").value; //id from previous choice
     let itemTypedName = "item-name";
+    let itemTypedName2 = "item-name";
     const response = await fetch(
       `https://pokemmoprices.com/api/v2/items/${itemTyped}`
     );
@@ -139,9 +140,20 @@ client.on("interactionCreate", async (interaction) => {
     let entry = myJson["data"];
     if (entry != null) {
       itemTypedName = entry.n.en; //english name
+      itemTypedName2 = entry.n.en.toString()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .trim()
+      .replace(/\s+/g, '-')
+      .replace(/[^\w-]+/g, '')
+      .replace(/--+/g, '-')
+
 
       console.log(itemTyped); //id
       console.log(itemTypedName); //english name
+
+      console.log(itemTypedName2); //slug
 
       async function fetching() {
         await interaction.deferReply();
@@ -262,7 +274,7 @@ client.on("interactionCreate", async (interaction) => {
           const chartEmbed = new EmbedBuilder()
             .setTitle(itemTypedName + " Chart")
             .setDescription(
-              `View full chart: https://pokemmoprices.com/item?id=${itemTyped}`
+              `View full chart: https://pokemmohub.com/items/${itemTypedName2}`
             )
             .setImage(url);
           await interaction.editReply({ content: "", embeds: [chartEmbed] });
