@@ -139,7 +139,7 @@ client.on("interactionCreate", async (interaction) => {
       try {
         const responsesJSON = await Promise.all([
             fetch(  `https://pokemmoprices.com/api/v2/items/${itemTyped}`),
-            fetch( `https://pokemmoprices.com/api/v2/items/graph/min/${itemTyped}`),
+            fetch( `https://pokemmoprices.com/api/v2/items/graph/min/${itemTyped}/14`), //2 weeks
             fetch(`https://pokemmoprices.com/api/v2/items/graph/quantity/${itemTyped}`)
         ]);
         const [response, response1, response2] = await Promise.all(responsesJSON.map(r => r.json()));
@@ -252,13 +252,16 @@ client.on("interactionCreate", async (interaction) => {
                 scales: {
                   xAxes: [
                     {
+                      ticks: {
+                        fontColor: "#fff",
+                      },
                       gridLines: {
-                        color: "rgba(200, 200, 200, 0.05)",
+                        color: "rgba(200, 200, 200, 0.08)",
                         lineWidth: 1,
                       },
                       type: "time",
                       time: {
-                        unit: "month",
+                        unit: "day",
                       },
                     },
                   ],
@@ -290,10 +293,10 @@ client.on("interactionCreate", async (interaction) => {
           //embed reply
           const url = await chart.getShortUrl(); //url too long, have to get short one
           const chartEmbed = new EmbedBuilder()
-            .setTitle(itemTypedName + " Chart")
-            .setURL(url)
+            .setTitle(itemTypedName)
+            .setURL(`https://pokemmohub.com/items/${itemTypedName2}`)
             .setDescription(
-              `View full chart: https://pokemmohub.com/items/${itemTypedName2}`
+              `2 week price history chart. \nView full chart here: https://pokemmohub.com/items/${itemTypedName2}`
             )
             .setImage(url)
             .addFields(
