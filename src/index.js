@@ -51,7 +51,7 @@ loadItems();
 
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isAutocomplete) {
-    const itemTyped = interaction.options.get("item-name").value;
+    const itemTyped = interaction.options.get("item-name").value.toString().toLowerCase();
     let itemMap2 = itemMap;
     let choices = [];
     // AUTO COMPLETE
