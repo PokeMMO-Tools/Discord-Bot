@@ -5,7 +5,10 @@ const {
   IntentsBitField,
   AttachmentBuilder,
   EmbedBuilder,
+  MessageEmbed,
+  Message,
   Embed,
+  Events,
   GatewayIntentBits,
 } = require("discord.js");
 const QuickChart = require("quickchart-js");
@@ -51,27 +54,14 @@ loadItems();
 
 client.on("interactionCreate", async (interaction) => {
   if (interaction.isAutocomplete) {
-    const itemTyped = interaction.options.get("item-name").value.toString().toLowerCase();
+    const itemTyped = interaction.options
+      .get("item-name")
+      .value.toString()
+      .toLowerCase();
     let itemMap2 = itemMap;
     let choices = [];
     // AUTO COMPLETE
     if (itemTyped.length > 1) {
-      //   const response = await fetch(`https://proxy.pokemmoprices.com/items/search/${itemTyped}`);
-      //   const myJson = await response.json(); //extract JSON from the http response
-      //   let entry = myJson['data']
-
-      /*    for (let i = 0; i < entry.length; i++ ){
-            let entries = entry[i]
-            let searchResult = {
-                name: entries.name,
-                value: ''+entries.id
-            }
-            choices.push(searchResult)
-            if (i == 24){
-                console.log ('option limit reached')
-                i = entry.length
-            }   */
-
       let searchResult = itemMap2.filter((item) =>
         item.name.toLowerCase().includes(itemTyped + "")
       );
@@ -86,37 +76,22 @@ client.on("interactionCreate", async (interaction) => {
         }
       }
 
-
-
       if (itemTyped.length > 2 && !isNaN(itemTyped)) {
-        //WEIRD WORK AROUND.... autocomplete and bot will crash if i dont stop it here. idk why tbh
-
         return;
       }
-      if (choices.length > 0) {
-  /* 
-     let placeholder = {
-          name: "No results. Delete and try again",
-          value: "1000000",
-        };
-        choices.push(placeholder);
-  */
+      if (choices.length > 0 && typeof interaction.respond === "function") {
+        if (interaction.guildId !== process.env.GUILD_ID || interaction.guildId !== process.env.GUILD_ID2) {
+          return;
+        }
         await interaction
           .respond(choices)
-          .then(() => console.log("successfully responded autocomplete"))
+          .then(() => {
+            console.log("successfully responded autocomplete");
+          })
           .catch(console.error);
       } else {
-        console.log("typing too fast!");
+        console.log("typing too fast! or Leaving the server");
       }
-      //   if (!choices[0]) {
-      //     //attempt to fix crashes
-      //     return;
-      //   } else {
-      //     await interaction
-      //       .respond(choices)
-      //       .then(() => console.log("successfully responded autocomplete"))
-      //       .catch(console.error);
-      //   }
     }
     console.log(interaction.options.get("item-name"));
   }
@@ -138,51 +113,56 @@ client.on("interactionCreate", async (interaction) => {
     const fetchData = async () => {
       try {
         const responsesJSON = await Promise.all([
-            fetch(  `https://pokemmoprices.com/api/v2/items/${itemTyped}`),
-            fetch( `https://pokemmoprices.com/api/v2/items/graph/min/${itemTyped}/14`), //2 weeks
-            fetch(`https://pokemmoprices.com/api/v2/items/graph/quantity/${itemTyped}`)
+          fetch(`https://pokemmoprices.com/api/v2/items/${itemTyped}`),
+          fetch(
+            `https://pokemmoprices.com/api/v2/items/graph/min/${itemTyped}/14`
+          ), //2 weeks
+          fetch(
+            `https://pokemmoprices.com/api/v2/items/graph/quantity/${itemTyped}`
+          ),
         ]);
-        const [response, response1, response2] = await Promise.all(responsesJSON.map(r => r.json()));
-        myJson = response //extract JSON from the http response
-        myJson1 =  response1 //extract JSON from the http response
-        myJson2 = response2
+        const [response, response1, response2] = await Promise.all(
+          responsesJSON.map((r) => r.json())
+        );
+        myJson = response; //extract JSON from the http response
+        myJson1 = response1; //extract JSON from the http response
+        myJson2 = response2;
       } catch (err) {
         throw err;
       }
     };
-    
-   await fetchData();
+
+    await fetchData();
 
     let entry = myJson["data"];
     if (entry != null) {
       itemTypedName = entry.n.en; //english name
-      itemTypedName2 = entry.n.en.toString()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/[^\w-]+/g, '')
-      .replace(/--+/g, '-')
+      itemTypedName2 = entry.n.en
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "-")
+        .replace(/[^\w-]+/g, "")
+        .replace(/--+/g, "-");
 
+      // console.log(itemTyped); //id
+      // console.log(itemTypedName); //english name
 
-      console.log(itemTyped); //id
-      console.log(itemTypedName); //english name
-
-      console.log(itemTypedName2); //slug
+      // console.log(itemTypedName2); //slug
 
       async function fetching() {
         await interaction.deferReply();
 
         async function graphItem() {
-          
-         
-
           // do something with myJson
           let entries = myJson1["data"];
-          let entries2 = myJson2["data"]
-          let currentPrice = entries[entries.length-1].y.toLocaleString('en-US')
-          let currentQuantity = entries2[entries2.length-1].y.toLocaleString('en-US')
+          let entries2 = myJson2["data"];
+          let currentPrice =
+            entries[entries.length - 1].y.toLocaleString("en-US");
+          let currentQuantity =
+            entries2[entries2.length - 1].y.toLocaleString("en-US");
           for (let i = 0; i < entries.length; i++) {
             entries[i].x *= 1000;
             //entries[i].y = entries[i].y.toLocaleString('en-US')
@@ -301,15 +281,15 @@ client.on("interactionCreate", async (interaction) => {
             .setImage(url)
             .addFields(
               {
-                name: 'Price',
+                name: "Price",
                 value: `${currentPrice}`,
-                inline: true
+                inline: true,
               },
               {
-                name: 'Quantity',
+                name: "Quantity",
                 value: `${currentQuantity}`,
-                inline: true
-              },
+                inline: true,
+              }
             );
           await interaction.editReply({ content: "", embeds: [chartEmbed] });
         }
