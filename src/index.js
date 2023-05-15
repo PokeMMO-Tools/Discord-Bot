@@ -178,7 +178,7 @@ loadItems().then(() => {
             }
 
             //Smoothing our the graph points
-            const smoothOffset = 2;
+            const smoothOffset = 0;
             const smoothed = smooth(
               entries,
               smoothOffset,
@@ -218,7 +218,7 @@ loadItems().then(() => {
                   datasets: [
                     {
                       label: "Price",
-                      data: average(smoothed),
+                      data: smoothed,
                       fill: false,
                       borderColor: getGradientFillHelper("vertical", [
                         "#eb3639",
