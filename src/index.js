@@ -83,7 +83,7 @@ loadItems().then(() => {
           return;
         }
         if (choices.length > 0 && typeof interaction.respond === "function") {
-          if (interaction.guildId !== process.env.GUILD_ID && interaction.guildId !== process.env.GUILD_ID2) {
+          if (interaction.guildId !== process.env.GUILD_ID && interaction.guildId !== process.env.GUILD_ID2 && interaction.guildId !== process.env.GUILD_ID3) {
             return;
           }
           await interaction
