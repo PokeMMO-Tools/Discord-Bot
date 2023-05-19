@@ -101,4 +101,23 @@ const rest = new REST({ version: "10" }).setToken(process.env.TOKEN);
     console.log(`There was an error: ${error}`);
   }
 })();
+// third server (presumably Hazzeer's)
+(async () => {
+  try {
+    console.log("Registering slash commands");
+
+    await rest.put(
+      Routes.applicationGuildCommands(
+        process.env.CLIENT_ID,
+        process.env.GUILD_ID4
+      ),
+      { body: commands }
+    );
+
+    console.log("Slash commands were registered correctly");
+  } catch (error) {
+    console.log(`There was an error: ${error}`);
+  }
+})();
+
 

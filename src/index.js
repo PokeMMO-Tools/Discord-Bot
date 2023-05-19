@@ -17,6 +17,24 @@ const QuickChart = require("quickchart-js");
 const { getGradientFillHelper } = require("quickchart-js");
 const fetch = require("node-fetch");
 
+function accentFold(inStr) {
+  return inStr.replace(
+    /([àáâãäå])|([çčć])|([èéêë])|([ìíîï])|([ñ])|([òóôõöø])|([ß])|([ùúûü])|([ÿ])|([æ])/g,
+    function (str, a, c, e, i, n, o, s, u, y, ae) {
+      if (a) return 'a';
+      if (c) return 'c';
+      if (e) return 'e';
+      if (i) return 'i';
+      if (n) return 'n';
+      if (o) return 'o';
+      if (s) return 's';
+      if (u) return 'u';
+      if (y) return 'y';
+      if (ae) return 'ae';
+    }
+  );
+}
+
 const client = new Client({
   intents: [
     IntentsBitField.Flags.Guilds,
@@ -57,16 +75,16 @@ async function loadItems() {
 loadItems().then(() => {
   client.on("interactionCreate", async (interaction) => {
     if (interaction.isAutocomplete) {
-      const itemTyped = interaction.options
+      const itemTyped = accentFold(interaction.options
         .get("item-name")
         .value.toString()
-        .toLowerCase();
+        .toLowerCase())
       let itemMap2 = itemMap;
       let choices = [];
       // AUTO COMPLETE
       if (itemTyped.length > 1) {
         let searchResult = itemMap2.filter((item) =>
-          item.name.toLowerCase().includes(itemTyped + "")
+          accentFold(item.name.toLowerCase()).includes(itemTyped + "")
         );
         if (searchResult.length < 1) {
         } else {
@@ -83,7 +101,8 @@ loadItems().then(() => {
           return;
         }
         if (choices.length > 0 && typeof interaction.respond === "function") {
-          if (interaction.guildId !== process.env.GUILD_ID && interaction.guildId !== process.env.GUILD_ID2 && interaction.guildId !== process.env.GUILD_ID3) {
+          if (interaction.guildId !== process.env.GUILD_ID && interaction.guildId !== process.env.GUILD_ID2
+            && interaction.guildId !== process.env.GUILD_ID3 && interaction.guildId !== process.env.GUILD_ID4) {
             return;
           }
           await interaction
