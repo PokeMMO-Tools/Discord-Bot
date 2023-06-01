@@ -101,10 +101,6 @@ loadItems().then(() => {
           return;
         }
         if (choices.length > 0 && typeof interaction.respond === "function") {
-          if (interaction.guildId !== process.env.GUILD_ID && interaction.guildId !== process.env.GUILD_ID2
-            && interaction.guildId !== process.env.GUILD_ID3 && interaction.guildId !== process.env.GUILD_ID4) {
-            return;
-          }
           await interaction
             .respond(choices)
             .then(() => {
@@ -263,6 +259,7 @@ loadItems().then(() => {
                       {
                         ticks: {
                           fontColor: "#fff",
+                          color: "rgba(200, 200, 200, 0.08)"
                         },
                         gridLines: {
                           color: "rgba(200, 200, 200, 0.08)",
