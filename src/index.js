@@ -1,13 +1,10 @@
 require('dotenv').config();
+require("./crashhandler");
 const commands = require('./commands');
 const { Client, IntentsBitField, GatewayIntentBits } = require('discord.js');
 
 const client = new Client({
   intents: [
-    IntentsBitField.Flags.Guilds,
-    IntentsBitField.Flags.GuildMembers,
-    IntentsBitField.Flags.GuildMessages,
-    IntentsBitField.Flags.MessageContent,
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
@@ -18,7 +15,8 @@ const client = new Client({
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
-    client.application.commands.set(commands);
+    //You should only execute this once after changing the slashcommands
+    //client.application.commands.set(commands);
 });
 
 const onCommand = async (interaction) => {
