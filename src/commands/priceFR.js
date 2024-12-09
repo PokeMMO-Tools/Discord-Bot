@@ -138,7 +138,7 @@ const onExecute = async (interaction) => {
 
     chart.backgroundColor = "#1b1b1b";
     const url = await chart.getShortUrl();
-    const slug = toSlug(itemData["n"]["fr"])
+    const slug = toSlug(itemData["n"]["en"])
     const chartEmbed = new EmbedBuilder()
         .setColor("Random")
         .setTitle(itemData["n"]["fr"])

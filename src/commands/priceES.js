@@ -141,7 +141,7 @@ const onExecute = async (interaction) => {
     const slug = toSlug(itemData["n"]["es"])
     const chartEmbed = new EmbedBuilder()
         .setColor("Random")
-        .setTitle(itemData["n"]["es"])
+        .setTitle(itemData["n"]["en"])
         .setURL(`https://pokemmohub.com/items/${slug}`)
         .setDescription(
             `2 week price history chart. \nView full chart here: https://pokemmohub.com/items/${slug}`
