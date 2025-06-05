@@ -7,7 +7,7 @@ module.exports = {
         try {
             const responses = await Promise.all([
                 fetch(`${BASE_URL}/items/${id}`),
-                fetch(`${BASE_URL}/items/graph/min/${id}/14`), // only get the last 14 days of data
+                fetch(`${BASE_URL}/items/graph/min/${id}/64`), // only get the last 14 days of data
                 fetch(`${BASE_URL}/items/graph/quantity/${id}`),
             ]);
             const [itemResponse, priceResponse, quantityResponse] = await Promise.all(responses.map(r => r.json()));
