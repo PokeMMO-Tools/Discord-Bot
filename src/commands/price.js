@@ -49,6 +49,7 @@ const onExecute = async (interaction) => {
             ],
         })
     }
+    console.log(prices)
     const currentPrice = prices[prices.length - 1].y.toLocaleString("en-US");
     const currentQuantity = quantities[quantities.length - 1].y.toLocaleString("en-US");
 
