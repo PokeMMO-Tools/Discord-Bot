@@ -49,7 +49,6 @@ const onExecute = async (interaction) => {
             ],
         })
     }
-    console.log(prices)
     const currentPrice = prices[prices.length - 1].y.toLocaleString("en-US");
     const currentQuantity = quantities[quantities.length - 1].y.toLocaleString("en-US");
 
@@ -145,7 +144,7 @@ const onExecute = async (interaction) => {
         .setTitle(itemData["n"]["en"])
         .setURL(`https://pokemmohub.com/items/${slug}`)
         .setDescription(
-            `2 week price history chart. \nView full chart here: https://pokemmohub.com/items/${slug}`
+            `Recent price history chart. \nView full chart here: https://pokemmohub.com/items/${slug}`
         )
         .setThumbnail(
             "https://cdn.discordapp.com/attachments/609023944238039042/1106788804498563122/HubLogo1.png"
