@@ -158,6 +158,7 @@ const onExecute = async (interaction) => {
                         ]),
                         borderWidth: 4,
                         pointRadius: 0,
+                        tension: 0.3, // Add tension for smoother lines
                     },
                 ],
             },
@@ -204,6 +205,12 @@ const onExecute = async (interaction) => {
                             },
                         },
                     ],
+                },
+                elements: {
+                    line: {
+                        tension: 0.3, // Global tension setting
+                        cubicInterpolationMode: 'monotone' // Prevents overshooting
+                    }
                 },
             },
         });
