@@ -13,15 +13,15 @@ const DISPLAY_LANGUAGE = 'fr'; // Change this to switch display language
 
 const onAutocomplete = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
-    const language = interaction.options.getString('language') || 'en'
+    const language = 'fr'
     if (itemName.length < 3) return interaction.respond([])
-    
+
     const ITEMS = await getItems();
     const searchName = accentFold(itemName.toLowerCase());
-    const items = ITEMS.filter(i => 
+    const items = ITEMS.filter(i =>
         accentFold(i.name[language]?.toLowerCase() || '').includes(searchName)
     )
-    
+
     // Get detailed info from item_lookup.json for each item
     const detailedItems = items.map(item => {
         const metadata = itemLookup[item.id];
@@ -30,7 +30,7 @@ const onAutocomplete = async (interaction) => {
             ...metadata
         };
     });
-    
+
     const options = detailedItems.slice(0, 25).map(i => ({
         name: i.name[language] || i.name.en, // Use selected language or fall back to English
         value: i.id.toString(), // Convert ID to string
@@ -42,7 +42,7 @@ const onAutocomplete = async (interaction) => {
 const onExecute = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
     await interaction.deferReply()
-    
+
     console.log('Price command execution:', {
         input: itemName,
         interactionId: interaction.id,
@@ -69,7 +69,7 @@ const onExecute = async (interaction) => {
     }
 
     console.log('Fetching data for item:', { itemId });
-    
+
     // Get item metadata directly from lookup
     const item = itemLookup[itemId];
     if (!item) {
@@ -89,7 +89,7 @@ const onExecute = async (interaction) => {
     try {
         // Fetch data for the last 30 days
         const { item: itemData, prices, quantities } = await fetchItemData(itemId, 30);
-        
+
         // Debug logging
         console.log('Fetched data:', {
             pricesCount: prices?.length,
@@ -126,10 +126,10 @@ const onExecute = async (interaction) => {
             x: p.x * 1000,
             y: p.y
         }));
-        
+
         // Debug logging of raw data
         console.log('Raw price data:', pricesWithTimestamps.slice(0, 5)); // Log first 5 points for debugging
-        
+
         // Validate data before smoothing
         if (!Array.isArray(pricesWithTimestamps) || pricesWithTimestamps.length === 0) {
             console.error('No price data:', pricesWithTimestamps);
@@ -147,10 +147,10 @@ const onExecute = async (interaction) => {
 
         // Filter out any invalid data points
         const validPrices = pricesWithTimestamps.filter(p => p && p.y !== undefined && !isNaN(p.y));
-        
+
         // Debug logging of filtered data
         console.log('Filtered price data:', validPrices.slice(0, 5)); // Log first 5 points for debugging
-        
+
         if (validPrices.length === 0) {
             console.error('All price data points were invalid:', pricesWithTimestamps);
             return interaction.editReply({
@@ -167,7 +167,7 @@ const onExecute = async (interaction) => {
 
         // Sort data by timestamp to ensure proper ordering
         const sortedPrices = validPrices.sort((a, b) => a.x - b.x);
-        
+
         // Debug logging of sorted data
         console.log('Sorted price data:', sortedPrices.slice(0, 5));
 
@@ -246,9 +246,9 @@ const onExecute = async (interaction) => {
         chart.setWidth(800);
         chart.setHeight(400);
         chart.backgroundColor = "#1b1b1b";
-        
+
         const url = await chart.getShortUrl();
-        
+
         const chartEmbed = new EmbedBuilder()
             .setColor("Random")
             .setTitle(itemNameLang)
