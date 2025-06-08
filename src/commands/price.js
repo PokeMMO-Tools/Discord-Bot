@@ -119,8 +119,7 @@ const onExecute = async (interaction) => {
         const currentQuantity = quantities[0]?.y?.toLocaleString("en-US") || 'N/A';
 
         // Convert timestamps to milliseconds and smooth the graph
-        // Using a small offset for smoother lines
-        const smoothOffset = 0.1; // Increased from 0 to 0.1 for smoother lines
+        const smoothOffset = 0;
         const smoothed = smooth(
             prices.map(p => ({
                 x: p.x * 1000,
@@ -234,7 +233,7 @@ const onExecute = async (interaction) => {
                 },
                 {
                     name: "Last Updated",
-                    value: `<t:${Math.floor(prices[0]?.x)}:R>`,
+                    value: `<t:${Math.floor(prices[0]?.x / 1000)}:R>`,
                     inline: true,
                 }
             );
