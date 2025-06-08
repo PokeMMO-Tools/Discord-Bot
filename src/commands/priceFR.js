@@ -13,7 +13,7 @@ const DISPLAY_LANGUAGE = 'fr'; // Change this to switch display language
 
 const onAutocomplete = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
-    const language = interaction.options.getString('language') || 'fr' // Default to French
+    const language = interaction.options.getString('language') || 'en'
     if (itemName.length < 3) return interaction.respond([])
     
     const ITEMS = await getItems();
@@ -32,9 +32,9 @@ const onAutocomplete = async (interaction) => {
     });
     
     const options = detailedItems.slice(0, 25).map(i => ({
-        name: i.name[language] || i.name.fr, // Default to French if English not available
+        name: i.name[language] || i.name.en, // Use selected language or fall back to English
         value: i.id.toString(), // Convert ID to string
-        description: i.description[language] || i.description.fr // Default to French if English not available
+        description: i.description[language] || i.description.en // Use selected language or fall back to English
     }))
     return interaction.respond(options)
 }

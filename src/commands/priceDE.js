@@ -1,10 +1,15 @@
 const { ApplicationCommandOptionType } = require("discord.js");
 const { accentFold, toSlug } = require("../util");
-const { fetchItemData } = require("../api");
-const getItems = require("../items");
+const { fetchItemData, validateItemId } = require("../api");
+const { getItems, findItemById, findItemByName, findItemsByName } = require("../items");
+const itemLookup = require("../item_lookup.json");
 const QuickChart = require("quickchart-js");
 const smooth = require("array-smooth");
 const { EmbedBuilder } = require("discord.js");
+
+// Default to German language
+const DEFAULT_LANGUAGE = 'de';
+const DISPLAY_LANGUAGE = 'de';
 
 const onAutocomplete = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
