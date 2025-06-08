@@ -10,7 +10,7 @@ There will be 2 things you need to do before you can run the code.
 
 You will need to create a file called `.env` in the project root with the following content:
 ```
-API_BASE_URL=https://pokemmoprices.com/api/v2
+API_BASE_URL=https://apis.fiereu.de/pokemmoprices/v1
 DISCORD_TOKEN=XXXX
 ```
 *DISCORD_TOKEN will be the token of you discord bot for testing*
