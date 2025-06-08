@@ -79,7 +79,7 @@ const onExecute = async (interaction) => {
         const { item: itemData, prices, quantities } = await fetchItemData(item.id)
         
         // Get the item name in English
-        const itemNameLang = itemData.name.en
+        const itemNameLang = itemData.name.en || item.name.en
         const slug = toSlug(itemNameLang)
 
         const currentPrice = prices[prices.length - 1].y.toLocaleString("en-US");

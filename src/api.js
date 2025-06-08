@@ -8,7 +8,7 @@ function getItemMetadata(id) {
     if (!item) return null;
     return {
         id: parseInt(id),
-        name: item.name.en,
+        name: item.name,
         description: item.description.en,
     };
 }
