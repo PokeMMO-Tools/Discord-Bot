@@ -57,7 +57,11 @@ async function fetchItems() {
         const items = await response.json();
         
         // Map API items to include metadata from item_lookup.json
-        return items.map(apiItem => {
+        // Only include items that exist in both API and item_lookup
+        return items.filter(apiItem => {
+            const metadata = getItemMetadata(apiItem.item_id);
+            return metadata !== null;
+        }).map(apiItem => {
             const metadata = getItemMetadata(apiItem.item_id);
             return {
                 id: apiItem.item_id,
@@ -75,7 +79,8 @@ async function validateItemId(id) {
     try {
         const response = await fetch(`${BASE_URL}/items/${id}`);
         const data = await response.json();
-        return !!data.data; // Returns true if item exists
+        // Check if we got valid item data
+        return !!data && typeof data === 'object' && 'item_id' in data;
     } catch (err) {
         console.error(`Error validating item ID ${id}:`, err);
         return false;
