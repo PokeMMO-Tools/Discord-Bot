@@ -18,7 +18,7 @@ const onAutocomplete = async (interaction) => {
     const ITEMS = await getItems();
     const searchName = accentFold(itemName.toLowerCase());
     const items = ITEMS.filter(i => 
-        accentFold(i.name?.toLowerCase() || '').includes(searchName)
+        accentFold(i.name.en?.toLowerCase() || '').includes(searchName)
     )
     
     // Get detailed info from item_lookup.json for each item
