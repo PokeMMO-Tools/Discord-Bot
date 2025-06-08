@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const itemLookup = require('./item_lookup.json');
+const { fetchWithCache } = require('./cache');
 
 const BASE_URL = 'https://apis.fiereu.de/pokemmoprices/v1';
 
@@ -16,11 +17,7 @@ function getItemMetadata(id) {
 async function fetchItemData(id) {
     try {
         console.log(`Fetching data for item ID: ${id}`);
-        const responses = await Promise.all([
-            fetch(`${BASE_URL}/graph/items/${id}/min`),
-            fetch(`${BASE_URL}/graph/items/${id}/quantity`),
-        ]);
-
+        
         // Get metadata from item_lookup.json
         const metadata = getItemMetadata(id);
         if (!metadata) {
@@ -31,8 +28,11 @@ async function fetchItemData(id) {
             throw new Error(`Item metadata not found for ID ${id}`);
         }
 
-        // Get price and quantity data
-        const [priceResponse, quantityResponse] = await Promise.all(responses.map(r => r.json()));
+        // Fetch price and quantity data with caching
+        const [prices, quantities] = await Promise.all([
+            fetchWithCache(`${BASE_URL}/graph/items/${id}/min`, `price_${id}`),
+            fetchWithCache(`${BASE_URL}/graph/items/${id}/quantity`, `quantity_${id}`)
+        ]);
 
         // Return the data using metadata
         return {
@@ -40,8 +40,8 @@ async function fetchItemData(id) {
                 ...metadata,
                 icon_url: metadata.icon_url || null
             },
-            prices: priceResponse,
-            quantities: quantityResponse
+            prices,
+            quantities
         };
     } catch (err) {
         console.error('Error fetching item data:', err);
@@ -51,8 +51,21 @@ async function fetchItemData(id) {
 
 async function fetchItems() {
     try {
-        const response = await fetch(`${BASE_URL}/items`);
-        const items = await response.json();
+        const items = await fetchWithCache(`${BASE_URL}/items`, 'items_list');
+        
+        // Map API items to include metadata from item_lookup.json
+        // Only include items that exist in both API and item_lookup
+        return items.filter(apiItem => {
+            const metadata = getItemMetadata(apiItem.item_id);
+            return metadata !== null;
+        }).map(apiItem => {
+            const metadata = getItemMetadata(apiItem.item_id);
+            return {
+                id: apiItem.item_id,
+                name: metadata?.name || apiItem.name,
+                icon_url: apiItem.icon_url
+            };
+        });
         
         // Map API items to include metadata from item_lookup.json
         // Only include items that exist in both API and item_lookup

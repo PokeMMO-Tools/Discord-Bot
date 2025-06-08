@@ -49,31 +49,38 @@ const onExecute = async (interaction) => {
         userId: interaction.user.id
     });
 
-    // Find item by ID (since we're getting the ID from autocomplete)
-    const ITEMS = await getItems();
-    const item = ITEMS.find(i => i.id === parseInt(itemName))
-    if (!item) {
-        console.error('Item not found in cache:', {
-            searchId: itemName,
-            cacheItems: ITEMS.map(i => i.id)
-        });
+    const itemId = parseInt(itemName);
+    if (!itemId) {
+        console.error('Invalid item ID:', itemName);
         return interaction.editReply({
             ephemeral: true,
             embeds: [
                 {
                     title: "Error",
-                    description: `The given Item could not be found: ${itemName}`,
+                    description: `Invalid item ID: ${itemName}`,
                     color: 0xFF0000, // red
                 },
             ],
-        })
+        });
     }
 
-    console.log('Found item in cache:', {
-        itemId: item.id,
-        itemName: item.name,
-        iconUrl: item.icon_url
-    });
+    console.log('Fetching data for item:', { itemId });
+    
+    // Get item metadata directly from lookup
+    const item = itemLookup[itemId];
+    if (!item) {
+        console.error('Item not found in lookup:', { itemId });
+        return interaction.editReply({
+            ephemeral: true,
+            embeds: [
+                {
+                    title: "Error",
+                    description: `Item ${itemId} not found in database`,
+                    color: 0xFF0000, // red
+                },
+            ],
+        });
+    }
 
     try {
         const { item: itemData, prices, quantities } = await fetchItemData(item.id)
