@@ -16,7 +16,7 @@ const client = new Client({
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
     //You should only execute this once after changing the slashcommands
-    client.application.commands.set(commands);
+    //client.application.commands.set(commands);
 });
 
 const onCommand = async (interaction) => {
