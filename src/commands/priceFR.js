@@ -295,8 +295,8 @@ const onExecute = async (interaction) => {
 }
 
 module.exports = {
-    name: 'price',
-    description: 'Displays price graph of the item specified.',
+    name: 'price-french',
+    description: 'French version of the price command',
     options: [
         {
             name: "item-name",
@@ -304,6 +304,16 @@ module.exports = {
             type: ApplicationCommandOptionType.String,
             required: true,
             autocomplete: true
+        },
+        {
+            name: "language",
+            description: "Language to display the item name and description",
+            type: ApplicationCommandOptionType.String,
+            required: false,
+            choices: [
+                { name: 'English', value: 'en' },
+                { name: 'French', value: 'fr' }
+            ]
         }
     ],
     execute: onExecute,
