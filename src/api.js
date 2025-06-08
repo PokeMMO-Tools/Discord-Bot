@@ -40,7 +40,7 @@ async function fetchItemData(id) {
         return {
             item: {
                 ...metadata,
-                icon_url: itemResponse.data.icon_url
+                icon_url: itemResponse.icon_url
             },
             prices,
             quantities
