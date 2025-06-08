@@ -225,7 +225,6 @@ const onExecute = async (interaction) => {
             ],
         });
     }
-    }
 }
 
 module.exports = {
