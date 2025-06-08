@@ -8,8 +8,8 @@ const smooth = require("array-smooth");
 const { EmbedBuilder } = require("discord.js");
 
 // Default to English language
-const DEFAULT_LANGUAGE = 'fr';
-const DISPLAY_LANGUAGE = 'fr'; // Change this to switch display language
+const DEFAULT_LANGUAGE = 'de';
+const DISPLAY_LANGUAGE = 'de'; // Change this to switch display language
 
 const onAutocomplete = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
