@@ -15,13 +15,26 @@ const onAutocomplete = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
     if (itemName.length < 3) return interaction.respond([])
     const ITEMS = await getItems();
-    const item = accentFold(itemName.toLowerCase())
-    const items = ITEMS.filter(i => accentFold(i["n"]["de"].toLowerCase()).includes(item))
-    const options = items.slice(0, 25).map(i => ({
-        name: i["n"]["de"],
-        value: i["n"]["de"],
-    }))
-    return interaction.respond(options)
+    const searchName = accentFold(itemName.toLowerCase());
+    const items = ITEMS.filter(i => 
+        accentFold(i.name["de"]?.toLowerCase() || '').includes(searchName)
+    );
+    
+    // Get detailed info from item_lookup.json for each item
+    const detailedItems = items.map(item => {
+        const metadata = itemLookup[item.id];
+        return {
+            ...item,
+            ...metadata
+        };
+    });
+    
+    const options = detailedItems.slice(0, 25).map(i => ({
+        name: i.name["de"] || i.name["en"], // Fallback to English if German not available
+        value: i.id.toString(), // Use ID as value
+        description: i.description["de"] || i.description["en"] // Fallback to English description
+    }));
+    return interaction.respond(options);
 }
 
 const onExecute = async (interaction) => {
