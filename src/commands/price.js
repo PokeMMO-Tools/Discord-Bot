@@ -27,9 +27,20 @@ const onAutocomplete = async (interaction) => {
     const items = ITEMS.filter(i => 
         accentFold(i.name?.toLowerCase() || '').includes(searchName)
     )
-    const options = items.slice(0, 25).map(i => ({
-        name: i.name,
-        value: i.id,
+    
+    // Get detailed info from item_lookup.json for each item
+    const detailedItems = items.map(item => {
+        const metadata = itemLookup[item.id];
+        return {
+            ...item,
+            ...metadata
+        };
+    });
+    
+    const options = detailedItems.slice(0, 25).map(i => ({
+        name: `${i.name.en} (${i.name.fr})`, // Show English name with French name in parentheses
+        value: i.id.toString(), // Convert ID to string
+        description: i.description.en // Add description as tooltip
     }))
     return interaction.respond(options)
 }
