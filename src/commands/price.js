@@ -87,6 +87,29 @@ const onExecute = async (interaction) => {
         // Fetch data for the last 30 days
         const { item: itemData, prices, quantities } = await fetchItemData(itemId, 30);
         
+        // Debug logging
+        console.log('Fetched data:', {
+            pricesCount: prices?.length,
+            quantitiesCount: quantities?.length,
+            firstPrice: prices?.[0],
+            firstQuantity: quantities?.[0]
+        });
+
+        // Validate data
+        if (!prices?.length || !quantities?.length) {
+            console.error('No price or quantity data available');
+            return interaction.editReply({
+                ephemeral: true,
+                embeds: [
+                    {
+                        title: "Error",
+                        description: "No price data available for this item",
+                        color: 0xFF0000,
+                    },
+                ],
+            });
+        }
+
         // Get the item name in display language
         const itemNameLang = item.name[DISPLAY_LANGUAGE] || item.name.en;
         const slug = toSlug(itemNameLang);
@@ -95,21 +118,25 @@ const onExecute = async (interaction) => {
         const currentPrice = prices[0]?.y?.toLocaleString("en-US") || 'N/A';
         const currentQuantity = quantities[0]?.y?.toLocaleString("en-US") || 'N/A';
 
-        // from seconds to milliseconds
-        for (let i = 0; i < prices.length; i++) {
-            prices[i].x *= 1000;
-        }
-
-        // smooth out the graph
+        // Convert timestamps to milliseconds and smooth the graph
         const smoothOffset = 0;
         const smoothed = smooth(
-            prices,
+            prices.map(p => ({
+                x: p.x * 1000,
+                y: p.y
+            })),
             smoothOffset,
             (i) => i.y,
-            (i, s) => {
-                return { x: i.x, y: s };
-            }
+            (i, s) => ({
+                x: i.x,
+                y: s
+            })
         );
+
+        // Debug logging
+        console.log('Smoothed prices:', smoothed);
+
+
 
         const chart = new QuickChart();
         chart.setConfig({
