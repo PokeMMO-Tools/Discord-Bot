@@ -2,6 +2,7 @@ const { ApplicationCommandOptionType } = require("discord.js");
 const { accentFold, toSlug } = require("../util");
 const { fetchItemData } = require("../api");
 const { getItems, findItemById, findItemByName, findItemsByName } = require("../items");
+const itemLookup = require("../item_lookup.json");
 const QuickChart = require("quickchart-js");
 const smooth = require("array-smooth");
 const { EmbedBuilder } = require("discord.js");
