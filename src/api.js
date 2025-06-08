@@ -45,16 +45,6 @@ async function fetchItemData(id) {
             }
         });
 
-        // Validate item exists in API
-        if (!itemResponse || typeof itemResponse !== 'object' || !('item_id' in itemResponse)) {
-            console.error('Validation failed:', {
-                itemResponseExists: !!itemResponse,
-                isObject: typeof itemResponse === 'object',
-                hasItemId: 'item_id' in itemResponse
-            });
-            throw new Error(`Item with ID ${id} not found in API`);
-        }
-        
         // Get metadata from item_lookup.json
         const metadata = getItemMetadata(id);
         if (!metadata) {
@@ -63,6 +53,29 @@ async function fetchItemData(id) {
                 hasMetadata: !!metadata
             });
             throw new Error(`Item metadata not found for ID ${id}`);
+        }
+        
+        // If item endpoint returns 404 but we have price/quantity data, use metadata instead
+        if (itemResponse.status === 404) {
+            console.log('Item endpoint returned 404, using metadata instead');
+            return {
+                item: {
+                    ...metadata,
+                    icon_url: metadata.icon_url || null
+                },
+                prices: priceResponse,
+                quantities: quantityResponse
+            };
+        }
+        
+        // Validate item exists in API
+        if (!itemResponse || typeof itemResponse !== 'object' || !('item_id' in itemResponse)) {
+            console.error('Validation failed:', {
+                itemResponseExists: !!itemResponse,
+                isObject: typeof itemResponse === 'object',
+                hasItemId: 'item_id' in itemResponse
+            });
+            throw new Error(`Item with ID ${id} not found in API`);
         }
         
         // Transform the data to match the expected structure
