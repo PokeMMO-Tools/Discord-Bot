@@ -124,15 +124,38 @@ const onExecute = async (interaction) => {
             y: p.y
         }));
         
+        // Debug logging of raw data
+        console.log('Raw price data:', pricesWithTimestamps.slice(0, 5)); // Log first 5 points for debugging
+        
         // Validate data before smoothing
-        if (!pricesWithTimestamps?.length || !pricesWithTimestamps[0]?.y) {
-            console.error('Invalid data format:', pricesWithTimestamps);
+        if (!Array.isArray(pricesWithTimestamps) || pricesWithTimestamps.length === 0) {
+            console.error('No price data:', pricesWithTimestamps);
             return interaction.editReply({
                 ephemeral: true,
                 embeds: [
                     {
                         title: "Error",
-                        description: "Invalid price data format",
+                        description: "No price data available",
+                        color: 0xFF0000,
+                    },
+                ],
+            });
+        }
+
+        // Filter out any invalid data points
+        const validPrices = pricesWithTimestamps.filter(p => p && p.y !== undefined && !isNaN(p.y));
+        
+        // Debug logging of filtered data
+        console.log('Filtered price data:', validPrices.slice(0, 5)); // Log first 5 points for debugging
+        
+        if (validPrices.length === 0) {
+            console.error('All price data points were invalid:', pricesWithTimestamps);
+            return interaction.editReply({
+                ephemeral: true,
+                embeds: [
+                    {
+                        title: "Error",
+                        description: "All price data points were invalid",
                         color: 0xFF0000,
                     },
                 ],
@@ -142,7 +165,7 @@ const onExecute = async (interaction) => {
         // Smooth the data with a small offset
         const smoothOffset = 0.1; // Small offset for smoother lines
         const smoothed = smooth(
-            pricesWithTimestamps,
+            validPrices,
             smoothOffset,
             (i) => i.y,
             (i, s) => ({
