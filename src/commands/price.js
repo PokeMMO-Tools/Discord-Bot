@@ -118,12 +118,27 @@ const onExecute = async (interaction) => {
         const currentPrice = prices[0]?.y?.toLocaleString("en-US") || 'N/A';
         const currentQuantity = quantities[0]?.y?.toLocaleString("en-US") || 'N/A';
 
-        // Convert timestamps to milliseconds
+        // Convert timestamps to milliseconds and validate data
         const pricesWithTimestamps = prices.map(p => ({
             x: p.x * 1000,
             y: p.y
         }));
         
+        // Validate data before smoothing
+        if (!pricesWithTimestamps?.length || !pricesWithTimestamps[0]?.y) {
+            console.error('Invalid data format:', pricesWithTimestamps);
+            return interaction.editReply({
+                ephemeral: true,
+                embeds: [
+                    {
+                        title: "Error",
+                        description: "Invalid price data format",
+                        color: 0xFF0000,
+                    },
+                ],
+            });
+        }
+
         // Smooth the data with a small offset
         const smoothOffset = 0.1; // Small offset for smoother lines
         const smoothed = smooth(
