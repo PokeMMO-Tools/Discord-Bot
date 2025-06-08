@@ -58,7 +58,7 @@ module.exports = {
             const items = await response.json();
             
             // Map API items to include metadata from item_lookup.json
-            return items.data.map(apiItem => {
+            return items.map(apiItem => {
                 const metadata = this.getItemMetadata(apiItem.item_id);
                 return {
                     id: apiItem.item_id,
