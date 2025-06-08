@@ -7,16 +7,8 @@ const QuickChart = require("quickchart-js");
 const smooth = require("array-smooth");
 const { EmbedBuilder } = require("discord.js");
 
-const SUPPORTED_LANGUAGES = {
-    'en': 'English',
-    'cn': 'Chinese',
-    'de': 'German',
-    'fr': 'French',
-    'it': 'Italian',
-    'es': 'Spanish',
-    'ja': 'Japanese',
-    'tw': 'Taiwanese'
-};
+// Default to English language
+const DEFAULT_LANGUAGE = 'en';
 
 const onAutocomplete = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
@@ -51,9 +43,9 @@ const onExecute = async (interaction) => {
     const language = interaction.options.getString('language') || 'en'
     await interaction.deferReply()
     
-    // Find item by name
+    // Find item by ID (since we're getting the ID from autocomplete)
     const ITEMS = await getItems();
-    const item = ITEMS.find(i => i.name.toLowerCase() === itemName.toLowerCase())
+    const item = ITEMS.find(i => i.id === parseInt(itemName))
     if (!item) {
         return interaction.editReply({
             ephemeral: true,
@@ -85,8 +77,8 @@ const onExecute = async (interaction) => {
     try {
         const { item: itemData, prices, quantities } = await fetchItemData(item.id)
         
-        // Get the item name in the selected language
-        const itemNameLang = itemData.name[language] || itemData.name.en
+        // Get the item name in English
+        const itemNameLang = itemData.name.en
         const slug = toSlug(itemNameLang)
 
         const currentPrice = prices[prices.length - 1].y.toLocaleString("en-US");
@@ -223,20 +215,10 @@ module.exports = {
     options: [
         {
             name: "item-name",
-            description: "Item name",
+            description: "The name of the item you want to look up",
             type: ApplicationCommandOptionType.String,
             required: true,
-            autocomplete: true,
-        },
-        {
-            name: "language",
-            description: "Language for item name",
-            type: ApplicationCommandOptionType.String,
-            required: false,
-            choices: Object.entries(SUPPORTED_LANGUAGES).map(([key, value]) => ({
-                name: value,
-                value: key
-            }))
+            autocomplete: true
         }
     ],
     execute: onExecute,
