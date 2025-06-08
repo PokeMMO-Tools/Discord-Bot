@@ -42,10 +42,21 @@ const onExecute = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
     await interaction.deferReply()
     
+    console.log('Price command execution:', {
+        input: itemName,
+        interactionId: interaction.id,
+        channelId: interaction.channelId,
+        userId: interaction.user.id
+    });
+
     // Find item by ID (since we're getting the ID from autocomplete)
     const ITEMS = await getItems();
     const item = ITEMS.find(i => i.id === parseInt(itemName))
     if (!item) {
+        console.error('Item not found in cache:', {
+            searchId: itemName,
+            cacheItems: ITEMS.map(i => i.id)
+        });
         return interaction.editReply({
             ephemeral: true,
             embeds: [
@@ -57,6 +68,12 @@ const onExecute = async (interaction) => {
             ],
         })
     }
+
+    console.log('Found item in cache:', {
+        itemId: item.id,
+        itemName: item.name,
+        iconUrl: item.icon_url
+    });
 
     try {
         const { item: itemData, prices, quantities } = await fetchItemData(item.id)

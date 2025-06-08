@@ -15,27 +15,68 @@ function getItemMetadata(id) {
 
 async function fetchItemData(id) {
     try {
+        console.log(`Fetching data for item ID: ${id}`);
         const responses = await Promise.all([
             fetch(`${BASE_URL}/items/${id}`),
             fetch(`${BASE_URL}/graph/items/${id}/min`),
             fetch(`${BASE_URL}/graph/items/${id}/quantity`),
         ]);
+        
+        // Log raw response status
+        responses.forEach((response, index) => {
+            const endpoint = index === 0 ? 'item' : index === 1 ? 'price' : 'quantity';
+            console.log(`Response status for ${endpoint} endpoint:`, {
+                status: response.status,
+                ok: response.ok,
+                url: response.url
+            });
+        });
+
         const [itemResponse, priceResponse, quantityResponse] = await Promise.all(responses.map(r => r.json()));
         
+        console.log('API Responses:', {
+            itemResponse,
+            priceResponse,
+            quantityResponse,
+            itemResponseStructure: {
+                hasData: 'data' in itemResponse,
+                hasItemId: 'item_id' in itemResponse,
+                type: typeof itemResponse
+            }
+        });
+
         // Validate item exists in API
         if (!itemResponse || typeof itemResponse !== 'object' || !('item_id' in itemResponse)) {
+            console.error('Validation failed:', {
+                itemResponseExists: !!itemResponse,
+                isObject: typeof itemResponse === 'object',
+                hasItemId: 'item_id' in itemResponse
+            });
             throw new Error(`Item with ID ${id} not found in API`);
         }
         
         // Get metadata from item_lookup.json
         const metadata = getItemMetadata(id);
         if (!metadata) {
+            console.error('Metadata lookup failed:', {
+                id,
+                hasMetadata: !!metadata
+            });
             throw new Error(`Item metadata not found for ID ${id}`);
         }
         
         // Transform the data to match the expected structure
         const prices = priceResponse;
         const quantities = quantityResponse;
+
+        console.log('Final data structure:', {
+            item: {
+                ...metadata,
+                icon_url: itemResponse.icon_url
+            },
+            prices,
+            quantities
+        });
 
         return {
             item: {
