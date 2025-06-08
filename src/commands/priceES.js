@@ -40,19 +40,33 @@ const onAutocomplete = async (interaction) => {
 const onExecute = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
     await interaction.deferReply()
-    const ITEMS = await getItems();
-    const item = ITEMS.find(i => i["n"]["es"].toLowerCase() === itemName.toLowerCase())
+    const itemId = parseInt(itemName);
+    if (!itemId) {
+        return interaction.editReply({
+            ephemeral: true,
+            embeds: [
+                {
+                    title: "Error",
+                    description: `Invalid item ID: ${itemName}`,
+                    color: 0xFF0000, // red
+                },
+            ],
+        });
+    }
+    
+    // Get item metadata directly from lookup
+    const item = itemLookup[itemId];
     if (!item) {
         return interaction.editReply({
             ephemeral: true,
             embeds: [
                 {
                     title: "Error",
-                    description: `The given Item could not be found: ${itemName}`,
+                    description: `Item ${itemId} not found in database`,
                     color: 0xFF0000, // red
                 },
             ],
-        })
+        });
     }
     const { item: itemData, prices, quantities } = await fetchItemData(item["i"])
     if (!itemData || !prices || !quantities) {
@@ -184,6 +198,20 @@ const onExecute = async (interaction) => {
 }
 
 module.exports = {
+    name: 'price-spanish',
+    description: 'SPANISH! Displays price graph of the item specified.',
+    options: [
+        {
+            name: "item-name",
+            description: "Item name",
+            type: ApplicationCommandOptionType.String,
+            required: true,
+            autocomplete: true,
+        },
+    ],
+    execute: onExecute,
+    autocomplete: onAutocomplete,
+}
     name: 'price-spanish',
     description: 'SPANISH! Displays price graph of the item specified.',
     options: [
