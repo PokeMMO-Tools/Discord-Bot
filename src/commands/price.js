@@ -47,7 +47,10 @@ const onExecute = async (interaction) => {
         input: itemName,
         interactionId: interaction.id,
         channelId: interaction.channelId,
-        userId: interaction.user.id
+        userId: interaction.user.id,
+        userName: interaction.user.username,
+        guildId: interaction.guildId,
+        guildName: interaction.guild?.name
     });
 
     const itemId = parseInt(itemName);
@@ -270,7 +273,7 @@ const onExecute = async (interaction) => {
                 },
                 {
                     name: "Last Updated",
-                    value: `<t:${Math.floor(prices[0]?.x)}:R>`,
+                    value: `<t:${Math.floor(sortedPrices[sortedPrices.length - 1]?.x / 1000)}:R>`,
                     inline: true,
                 }
             );
