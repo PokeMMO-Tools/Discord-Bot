@@ -40,33 +40,19 @@ const onAutocomplete = async (interaction) => {
 const onExecute = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
     await interaction.deferReply()
-    const itemId = parseInt(itemName);
-    if (!itemId) {
-        return interaction.editReply({
-            ephemeral: true,
-            embeds: [
-                {
-                    title: "Error",
-                    description: `Invalid item ID: ${itemName}`,
-                    color: 0xFF0000, // red
-                },
-            ],
-        });
-    }
-    
-    // Get item metadata directly from lookup
-    const item = itemLookup[itemId];
+    const ITEMS = await getItems();
+    const item = ITEMS.find(i => i["n"]["it"].toLowerCase() === itemName.toLowerCase())
     if (!item) {
         return interaction.editReply({
             ephemeral: true,
             embeds: [
                 {
                     title: "Error",
-                    description: `Item ${itemId} not found in database`,
+                    description: `The given Item could not be found: ${itemName}`,
                     color: 0xFF0000, // red
                 },
             ],
-        });
+        })
     }
     const { item: itemData, prices, quantities } = await fetchItemData(item["i"])
     if (!itemData || !prices || !quantities) {

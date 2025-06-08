@@ -115,7 +115,7 @@ const onExecute = async (interaction) => {
 
         // Get the item name in display language
         const itemNameLang = item.name[DISPLAY_LANGUAGE] || item.name.en;
-        const slug = toSlug('en');
+        const slug = toSlug(item.name['en']);
 
         // Get the latest price and quantity
         const currentPrice = prices[0]?.y?.toLocaleString("en-US") || 'N/A';
