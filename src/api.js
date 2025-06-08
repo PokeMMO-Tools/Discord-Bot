@@ -14,12 +14,12 @@ function getItemMetadata(id) {
     };
 }
 
-const TIME_WINDOW_DAYS = 30; // Default to 30 days
+const TIME_WINDOW_DAYS = 14;
 
 async function fetchItemData(id, timeWindowDays = TIME_WINDOW_DAYS) {
     try {
         console.log(`Fetching data for item ID: ${id} with ${timeWindowDays} day window`);
-        
+
         // Get metadata from item_lookup.json
         const metadata = getItemMetadata(id);
         if (!metadata) {
@@ -61,7 +61,7 @@ async function fetchItemData(id, timeWindowDays = TIME_WINDOW_DAYS) {
 async function fetchItems() {
     try {
         const items = await fetchWithCache(`${BASE_URL}/items`, 'items_list');
-        
+
         // Map API items to include metadata from item_lookup.json
         // Only include items that exist in both API and item_lookup
         return items.filter(apiItem => {
@@ -75,7 +75,7 @@ async function fetchItems() {
                 icon_url: apiItem.icon_url
             };
         });
-        
+
         // Map API items to include metadata from item_lookup.json
         // Only include items that exist in both API and item_lookup
         return items.filter(apiItem => {
