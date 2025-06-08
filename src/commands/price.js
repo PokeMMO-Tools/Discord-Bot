@@ -9,6 +9,7 @@ const { EmbedBuilder } = require("discord.js");
 
 // Default to English language
 const DEFAULT_LANGUAGE = 'en';
+const DISPLAY_LANGUAGE = 'en'; // Change this to switch display language
 
 const onAutocomplete = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
@@ -18,7 +19,7 @@ const onAutocomplete = async (interaction) => {
     const ITEMS = await getItems();
     const searchName = accentFold(itemName.toLowerCase());
     const items = ITEMS.filter(i => 
-        accentFold(i.name.en?.toLowerCase() || '').includes(searchName)
+        accentFold(i.name[language]?.toLowerCase() || '').includes(searchName)
     )
     
     // Get detailed info from item_lookup.json for each item
@@ -31,9 +32,9 @@ const onAutocomplete = async (interaction) => {
     });
     
     const options = detailedItems.slice(0, 25).map(i => ({
-        name: `${i.name.en} (${i.name.fr})`, // Show English name with French name in parentheses
+        name: i.name[language] || i.name.en, // Use selected language or fall back to English
         value: i.id.toString(), // Convert ID to string
-        description: i.description.en // Add description as tooltip
+        description: i.description[language] || i.description.en // Use selected language or fall back to English
     }))
     return interaction.respond(options)
 }
@@ -83,14 +84,16 @@ const onExecute = async (interaction) => {
     }
 
     try {
-        const { item: itemData, prices, quantities } = await fetchItemData(itemId)
+        // Fetch data for the last 30 days
+        const { item: itemData, prices, quantities } = await fetchItemData(itemId, 30);
         
-        // Get the item name in English
-        const itemNameLang = item.name.en
-        const slug = toSlug(itemNameLang)
+        // Get the item name in display language
+        const itemNameLang = item.name[DISPLAY_LANGUAGE] || item.name.en;
+        const slug = toSlug(itemNameLang);
 
-        const currentPrice = prices[prices.length - 1].y.toLocaleString("en-US");
-        const currentQuantity = quantities[quantities.length - 1].y.toLocaleString("en-US");
+        // Get the latest price and quantity
+        const currentPrice = prices[0]?.y?.toLocaleString("en-US") || 'N/A';
+        const currentQuantity = quantities[0]?.y?.toLocaleString("en-US") || 'N/A';
 
         // from seconds to milliseconds
         for (let i = 0; i < prices.length; i++) {
@@ -172,11 +175,11 @@ const onExecute = async (interaction) => {
                     ],
                 },
             },
-        })
-        .setWidth(800)
-        .setHeight(400);
-
+        });
+        chart.setWidth(800);
+        chart.setHeight(400);
         chart.backgroundColor = "#1b1b1b";
+        
         const url = await chart.getShortUrl();
         
         const chartEmbed = new EmbedBuilder()
@@ -200,20 +203,28 @@ const onExecute = async (interaction) => {
                     name: "Quantity",
                     value: `${currentQuantity}`,
                     inline: true,
+                },
+                {
+                    name: "Last Updated",
+                    value: `<t:${Math.floor(prices[0]?.x / 1000)}:R>`,
+                    inline: true,
                 }
             );
-        return interaction.editReply({ embeds: [chartEmbed] });
-    } catch (err) {
+
+        await interaction.editReply({ embeds: [chartEmbed] });
+    } catch (error) {
+        console.error('Error creating price chart:', error);
         return interaction.editReply({
             ephemeral: true,
             embeds: [
                 {
                     title: "Error",
-                    description: "There was an error while fetching the item data.",
-                    color: 0xFF0000, // red
+                    description: "Failed to create price chart",
+                    color: 0xFF0000,
                 },
             ],
-        })
+        });
+    }
     }
 }
 

@@ -14,9 +14,11 @@ function getItemMetadata(id) {
     };
 }
 
-async function fetchItemData(id) {
+const TIME_WINDOW_DAYS = 30; // Default to 30 days
+
+async function fetchItemData(id, timeWindowDays = TIME_WINDOW_DAYS) {
     try {
-        console.log(`Fetching data for item ID: ${id}`);
+        console.log(`Fetching data for item ID: ${id} with ${timeWindowDays} day window`);
         
         // Get metadata from item_lookup.json
         const metadata = getItemMetadata(id);
@@ -28,11 +30,18 @@ async function fetchItemData(id) {
             throw new Error(`Item metadata not found for ID ${id}`);
         }
 
+        // Calculate timestamp for start of time window
+        const startTime = Math.floor(Date.now() / 1000) - (timeWindowDays * 24 * 60 * 60);
+
         // Fetch price and quantity data with caching
         const [prices, quantities] = await Promise.all([
-            fetchWithCache(`${BASE_URL}/graph/items/${id}/min`, `price_${id}`),
-            fetchWithCache(`${BASE_URL}/graph/items/${id}/quantity`, `quantity_${id}`)
+            fetchWithCache(`${BASE_URL}/graph/items/${id}/min?start=${startTime}`, `price_${id}_${startTime}`),
+            fetchWithCache(`${BASE_URL}/graph/items/${id}/quantity?start=${startTime}`, `quantity_${id}_${startTime}`)
         ]);
+
+        // Filter data to only include points within our time window
+        const filteredPrices = prices.filter(point => point.x >= startTime);
+        const filteredQuantities = quantities.filter(point => point.x >= startTime);
 
         // Return the data using metadata
         return {
@@ -40,8 +49,8 @@ async function fetchItemData(id) {
                 ...metadata,
                 icon_url: metadata.icon_url || null
             },
-            prices,
-            quantities
+            prices: filteredPrices,
+            quantities: filteredQuantities
         };
     } catch (err) {
         console.error('Error fetching item data:', err);
