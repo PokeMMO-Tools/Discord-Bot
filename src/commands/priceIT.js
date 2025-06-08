@@ -39,6 +39,7 @@ const onAutocomplete = async (interaction) => {
 
 const onExecute = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
+    const language = interaction.options.getString('language') || DISPLAY_LANGUAGE;
     await interaction.deferReply()
     const itemId = parseInt(itemName);
     if (!itemId) {
@@ -122,7 +123,7 @@ const onExecute = async (interaction) => {
         options: {
             title: {
                 display: true,
-                text: itemData["n"]["it"],
+                text: itemData["n"][language],
                 fontColor: "#fff",
             },
             legend: {
@@ -169,11 +170,10 @@ const onExecute = async (interaction) => {
         .setHeight(400);
 
     chart.backgroundColor = "#1b1b1b";
-    const url = await chart.getShortUrl();
     const slug = toSlug(itemData["n"]["en"])
     const chartEmbed = new EmbedBuilder()
         .setColor("Random")
-        .setTitle(itemData["n"]["it"])
+        .setTitle(itemData["n"][language])
         .setURL(`https://pokemmohub.com/items/${slug}`)
         .setDescription(
             `2 week price history chart. \nView full chart here: https://pokemmohub.com/items/${slug}`
@@ -181,7 +181,7 @@ const onExecute = async (interaction) => {
         .setThumbnail(
             "https://cdn.discordapp.com/attachments/609023944238039042/1106788804498563122/HubLogo1.png"
         )
-        .setImage(url)
+        .setImage(chart.getShortUrl())
         .addFields(
             {
                 name: "Price",
@@ -198,30 +198,26 @@ const onExecute = async (interaction) => {
 }
 
 module.exports = {
-    name: 'price-italian',
-    description: 'ITALIAN! Displays price graph of the item specified.',
+    name: 'price-it',
+    description: 'Italian version of the price command',
     options: [
         {
             name: "item-name",
-            description: "Item name",
+            description: "Nome dell'item",
             type: ApplicationCommandOptionType.String,
             required: true,
             autocomplete: true,
         },
-    ],
-    execute: onExecute,
-    autocomplete: onAutocomplete,
-}
-    name: 'price-italian',
-    description: 'ITALIAN! Displays price graph of the item specified.',
-    options: [
         {
-            name: "item-name",
-            description: "Item name",
+            name: "language",
+            description: "Lingua per mostrare il nome e la descrizione dell'item",
             type: ApplicationCommandOptionType.String,
-            required: true,
-            autocomplete: true,
-        },
+            required: false,
+            choices: [
+                { name: 'Inglese', value: 'en' },
+                { name: 'Italiano', value: 'it' }
+            ]
+        }
     ],
     execute: onExecute,
     autocomplete: onAutocomplete,

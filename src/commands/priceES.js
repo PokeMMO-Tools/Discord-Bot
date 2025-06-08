@@ -39,6 +39,7 @@ const onAutocomplete = async (interaction) => {
 
 const onExecute = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
+    const language = interaction.options.getString('language') || 'es'
     await interaction.deferReply()
     const itemId = parseInt(itemName);
     if (!itemId) {
@@ -81,8 +82,8 @@ const onExecute = async (interaction) => {
             ],
         })
     }
-    const currentPrice = prices[prices.length - 1].y.toLocaleString("en-US");
-    const currentQuantity = quantities[quantities.length - 1].y.toLocaleString("en-US");
+    const currentPrice = prices[prices.length - 1].y.toLocaleString("es-ES");
+    const currentQuantity = quantities[quantities.length - 1].y.toLocaleString("es-ES");
 
     // from seconds to milliseconds
     for (let i = 0; i < prices.length; i++) {
@@ -122,7 +123,7 @@ const onExecute = async (interaction) => {
         options: {
             title: {
                 display: true,
-                text: itemData["n"]["es"],
+                text: itemData["n"][language],
                 fontColor: "#fff",
             },
             legend: {
@@ -169,11 +170,10 @@ const onExecute = async (interaction) => {
         .setHeight(400);
 
     chart.backgroundColor = "#1b1b1b";
-    const url = await chart.getShortUrl();
     const slug = toSlug(itemData["n"]["en"])
     const chartEmbed = new EmbedBuilder()
         .setColor("Random")
-        .setTitle(itemData["n"]["es"])
+        .setTitle(itemData["n"][language])
         .setURL(`https://pokemmohub.com/items/${slug}`)
         .setDescription(
             `2 week price history chart. \nView full chart here: https://pokemmohub.com/items/${slug}`
@@ -181,15 +181,15 @@ const onExecute = async (interaction) => {
         .setThumbnail(
             "https://cdn.discordapp.com/attachments/609023944238039042/1106788804498563122/HubLogo1.png"
         )
-        .setImage(url)
+        .setImage(chart.getShortUrl())
         .addFields(
             {
-                name: "Price",
+                name: "Precio",
                 value: `${currentPrice}`,
                 inline: true,
             },
             {
-                name: "Quantity",
+                name: "Cantidad",
                 value: `${currentQuantity}`,
                 inline: true,
             }
@@ -198,30 +198,26 @@ const onExecute = async (interaction) => {
 }
 
 module.exports = {
-    name: 'price-spanish',
-    description: 'SPANISH! Displays price graph of the item specified.',
+    name: 'price-es',
+    description: 'Spanish version of the price command',
     options: [
         {
             name: "item-name",
-            description: "Item name",
+            description: "Nombre del item",
             type: ApplicationCommandOptionType.String,
             required: true,
             autocomplete: true,
         },
-    ],
-    execute: onExecute,
-    autocomplete: onAutocomplete,
-}
-    name: 'price-spanish',
-    description: 'SPANISH! Displays price graph of the item specified.',
-    options: [
         {
-            name: "item-name",
-            description: "Item name",
+            name: "language",
+            description: "Idioma para mostrar el nombre y descripción del item",
             type: ApplicationCommandOptionType.String,
-            required: true,
-            autocomplete: true,
-        },
+            required: false,
+            choices: [
+                { name: 'Inglés', value: 'en' },
+                { name: 'Español', value: 'es' }
+            ]
+        }
     ],
     execute: onExecute,
     autocomplete: onAutocomplete,
