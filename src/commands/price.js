@@ -118,15 +118,14 @@ const onExecute = async (interaction) => {
         const currentPrice = prices[0]?.y?.toLocaleString("en-US") || 'N/A';
         const currentQuantity = quantities[0]?.y?.toLocaleString("en-US") || 'N/A';
 
-        // Convert timestamps to milliseconds and smooth the graph
-        // First convert timestamps
+        // Convert timestamps to milliseconds
         const pricesWithTimestamps = prices.map(p => ({
             x: p.x * 1000,
             y: p.y
         }));
         
-        // Then smooth the data
-        const smoothOffset = 0;
+        // Smooth the data with a small offset
+        const smoothOffset = 0.1; // Small offset for smoother lines
         const smoothed = smooth(
             pricesWithTimestamps,
             smoothOffset,
@@ -244,7 +243,7 @@ const onExecute = async (interaction) => {
                 },
                 {
                     name: "Last Updated",
-                    value: `<t:${Math.floor(prices[0]?.x / 1000)}:R>`,
+                    value: `<t:${Math.floor(prices[0]?.x)}:R>`,
                     inline: true,
                 }
             );
