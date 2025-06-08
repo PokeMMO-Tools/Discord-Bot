@@ -295,8 +295,8 @@ const onExecute = async (interaction) => {
 }
 
 module.exports = {
-    name: 'price-french',
-    description: 'French version of the price command',
+    name: 'price-german',
+    description: 'German version of the price command',
     options: [
         {
             name: "item-name",
