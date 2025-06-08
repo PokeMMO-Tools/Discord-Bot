@@ -165,14 +165,20 @@ const onExecute = async (interaction) => {
         // Smooth the data with a small offset
         const smoothOffset = 0.1; // Small offset for smoother lines
         const smoothed = smooth(
-            validPrices,
+            validPrices.map(p => p.y), // Pass only the y values for smoothing
             smoothOffset,
-            (i) => i.y,
-            (i, s) => ({
-                x: i.x,
-                y: s
-            })
+            (i) => i,
+            (i, s) => s
         );
+
+        // Combine smoothed values with original timestamps
+        const smoothedData = validPrices.map((p, index) => ({
+            x: p.x,
+            y: smoothed[index]
+        }));
+
+        // Debug logging of smoothed data
+        console.log('Smoothed data:', smoothedData.slice(0, 5));
 
         // Debug logging
         console.log('Smoothed prices:', smoothed);
