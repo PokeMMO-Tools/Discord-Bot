@@ -23,9 +23,9 @@ const onAutocomplete = async (interaction) => {
     if (itemName.length < 3) return interaction.respond([])
     
     const ITEMS = await getItems();
-    const item = accentFold(itemName.toLowerCase())
+    const searchName = accentFold(itemName.toLowerCase());
     const items = ITEMS.filter(i => 
-        accentFold(i.name.toLowerCase()).includes(item)
+        accentFold(i.name?.toLowerCase() || '').includes(searchName)
     )
     const options = items.slice(0, 25).map(i => ({
         name: i.name,
