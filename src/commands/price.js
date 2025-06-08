@@ -40,7 +40,6 @@ const onAutocomplete = async (interaction) => {
 
 const onExecute = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
-    const language = interaction.options.getString('language') || 'en'
     await interaction.deferReply()
     
     // Find item by ID (since we're getting the ID from autocomplete)
@@ -53,21 +52,6 @@ const onExecute = async (interaction) => {
                 {
                     title: "Error",
                     description: `The given Item could not be found: ${itemName}`,
-                    color: 0xFF0000, // red
-                },
-            ],
-        })
-    }
-
-    // Validate item ID against API
-    const isValid = await validateItemId(item.id)
-    if (!isValid) {
-        return interaction.editReply({
-            ephemeral: true,
-            embeds: [
-                {
-                    title: "Error",
-                    description: `The item ${itemName} exists in cache but is no longer valid in the API`,
                     color: 0xFF0000, // red
                 },
             ],

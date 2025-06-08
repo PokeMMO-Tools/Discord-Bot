@@ -18,7 +18,7 @@ const getItems = async () => {
 // Find item by ID
 const findItemById = async (id) => {
     const items = await getItems();
-    return items.find(item => item.id === id);
+    return items.find(item => item.id === parseInt(id));
 };
 
 // Find item by name (case-insensitive)

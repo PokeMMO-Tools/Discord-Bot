@@ -23,7 +23,7 @@ async function fetchItemData(id) {
         const [itemResponse, priceResponse, quantityResponse] = await Promise.all(responses.map(r => r.json()));
         
         // Validate item exists in API
-        if (!itemResponse.data) {
+        if (!itemResponse || typeof itemResponse !== 'object' || !('item_id' in itemResponse)) {
             throw new Error(`Item with ID ${id} not found in API`);
         }
         
@@ -34,8 +34,8 @@ async function fetchItemData(id) {
         }
         
         // Transform the data to match the expected structure
-        const prices = priceResponse.data;
-        const quantities = quantityResponse.data;
+        const prices = priceResponse;
+        const quantities = quantityResponse;
 
         return {
             item: {
