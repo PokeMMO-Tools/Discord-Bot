@@ -87,8 +87,8 @@ const onExecute = async (interaction) => {
     }
 
     try {
-        // Fetch data for the last 30 days
-        const { item: itemData, prices, quantities } = await fetchItemData(itemId, 30);
+        // Fetch data for the last 14 days
+        const { item: itemData, prices, quantities } = await fetchItemData(itemId, 14);
 
         // Debug logging
         console.log('Fetched data:', {
