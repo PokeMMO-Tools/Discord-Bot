@@ -14,38 +14,13 @@ const DISPLAY_LANGUAGE = 'en'; // Change this to switch display language
 const onAutocomplete = async (interaction) => {
     const itemName = interaction.options.getString('item-name') || ''
     const language = interaction.options.getString('language') || 'en'
-    if (itemName.length < 1) return interaction.respond([])
+    if (itemName.length < 3) return interaction.respond([])
 
     const ITEMS = await getItems();
-    let items = [];
-
-    // Check if input is a number (item ID search)
-    const isNumeric = /^\d+$/.test(itemName.trim());
-
-    if (isNumeric) {
-        const itemId = parseInt(itemName);
-
-        // Search by exact ID match first
-        const exactMatch = ITEMS.find(i => i.id === itemId);
-        if (exactMatch) {
-            items.push(exactMatch);
-        }
-
-        // Also search for IDs that start with the input number
-        const partialIdMatches = ITEMS.filter(i =>
-            i.id.toString().startsWith(itemName) && i.id !== itemId
-        );
-        items.push(...partialIdMatches);
-
-    } else {
-        // Original name-based search (only if input length >= 3 for performance)
-        if (itemName.length >= 3) {
-            const searchName = accentFold(itemName.toLowerCase());
-            items = ITEMS.filter(i =>
-                accentFold(i.name[language]?.toLowerCase() || '').includes(searchName)
-            );
-        }
-    }
+    const searchName = accentFold(itemName.toLowerCase());
+    const items = ITEMS.filter(i =>
+        accentFold(i.name[language]?.toLowerCase() || '').includes(searchName)
+    )
 
     // Get detailed info from item_lookup.json for each item
     const detailedItems = items.map(item => {
@@ -56,18 +31,12 @@ const onAutocomplete = async (interaction) => {
         };
     });
 
-    // Create options with both name and ID visible
-    const options = detailedItems.slice(0, 25).map(i => {
-        const itemNameLang = i.name[language] || i.name.en;
-
-        return {
-            name: `${itemNameLang} (ID: ${i.id})`, // Show both name and ID
-            value: i.id.toString(),
-            description: i.description[language] || i.description.en
-        };
-    });
-
-    return interaction.respond(options);
+    const options = detailedItems.slice(0, 25).map(i => ({
+        name: i.name[language] || i.name.en, // Use selected language or fall back to English
+        value: i.id.toString(), // Convert ID to string
+        description: i.description[language] || i.description.en // Use selected language or fall back to English
+    }))
+    return interaction.respond(options)
 }
 
 const onExecute = async (interaction) => {
